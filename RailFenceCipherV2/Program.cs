@@ -21,6 +21,7 @@ namespace RailFenceCipherV2
             //Console.WriteLine(output);
             //output = test1.Decrypt("TCNMRzHIkWFUPETAYEUBOOJSVHLDGQRXOEO");
             //Console.WriteLine(output);
+            RailFence newcipher = new RailFence();
             Console.ReadKey();
         }
     }
@@ -65,21 +66,97 @@ namespace RailFenceCipherV2
         /// <param name="numberOfRows">Number of rows for encryption</param>
         public RailFence()
         {
-            Console.WriteLine("Please type the number of rows for enctyption and decryption:");
-            Console.Write("Number of rows:");
-            string userinput = Console.ReadLine();
-            for (int i = 0; i < int.Parse(userinput); i++)
-            {
-                this.ListOfStringsEnc.Add(string.Empty);
-                this.ListOfStringsDec.Add(string.Empty);
-            }
-            this.NumberOfRows = int.Parse(userinput);
+            Console.WindowHeight = 35;
+            //intro with explanations
+            Console.WriteLine(@"
+Welcome to RailFence Cipher!
 
+How it works.
+
+Program encrypts an input string using the specified amounts of rows and a rail fence method. On the example below, let's encrypt a string ""RAILFENCECIPHER"" using 3 rows:
+
+R     F      E      H
+  A  L  E  C   C  P  E
+   I     N      I     R
+
+Now, we will concatenate each of 3 strings and will get the following final encrypted string ""RFEHALECCPEINIR"".
+For decryption part, you will have to specify an input string as well as number of rows.");
+            //mail loop
             bool mainLoop = true;
             while (mainLoop)
             {
+                //asking if user wants to encrypt or decrypt
+                Console.WriteLine("For encryption please type \"enc\" and for decryption type \"dec\".");
+                Console.Write("Enc or Dec?: ");
+                string userinput = Console.ReadLine();
+                //checking for valid input in below loop
+                bool userLoop = true;
+                while (userLoop)
+                {
+                    if (userinput.ToLower() != "enc" && userinput.ToLower() != "dec")
+                    {
+                        Console.WriteLine("Invalid input. Please type only enc or dec.");
+                        Console.Write("Enc or Dec?: ");
+                        userinput = Console.ReadLine();
+                    }
+                    else
+                    {
+                        userLoop = false;
+                    }
+                }
+                //saving user input
+                string encOrDec = userinput;
+                if (encOrDec == "enc")
+                {
+                    encOrDec = "encryption";
+                }
+                else
+                {
+                    encOrDec = "decryption";
+                }
+                //asking for number of rows for encryption/decryption
+                Console.WriteLine("Please type the number of rows for {0}.", encOrDec);
+                Console.Write("Number of rows: ");
+                userinput = Console.ReadLine();
+                //checking for valid input in below loop
+                int result = 0;
+                while (!int.TryParse(userinput, out result))
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    userinput = Console.ReadLine();
+                }
+                //assigning properties according to number of rows entered by user
+                for (int i = 0; i < int.Parse(userinput); i++)
+                {
+                    this.ListOfStringsEnc.Add(string.Empty);
+                    this.ListOfStringsDec.Add(string.Empty);
+                }
+                this.NumberOfRows = int.Parse(userinput);
+                //asking for input string
+                Console.WriteLine("Please type the string for {0}.", encOrDec);
+                Console.Write("String for {0}: ", encOrDec);
+                userinput = Console.ReadLine();
+                //calling a function depending of previous user's choice
+                if (encOrDec == "encryption")
+                {
+                    Console.WriteLine("Here is your encrypted string: {0} .", this.Encrypt(userinput));
+                }
+                else
+                {
+                    Console.WriteLine("Here is your decrypted string: {0} .", this.Decrypt(userinput));
+                }
+                //asking if user want to exit the program
+                Console.WriteLine("\nTo stop the program press \"N\". Otherwise, press any key to run Cipher again...");
+                ConsoleKeyInfo userFinalInput = Console.ReadKey();
+                if (userFinalInput.Key == ConsoleKey.N)
+                {
+                    mainLoop = false;
+                }
+                //reseting properties if user want to try again
+                this.ListForDecrypt.Clear();
+                this.ListOfStringsDec.Clear();
+                this.ListOfStringsEnc.Clear();
                 Console.Clear();
-                Console.WriteLine("For encryption please type enc.");
             }
         }
         /// <summary>
@@ -94,12 +171,12 @@ namespace RailFenceCipherV2
             //decraring a counter that indicates the number of row during the main loop
             int counter = 0;
             //declaring a counter that indicates the number of row that we are at during the loop
-            string direction = "up";
+            string direction = "down";
             //looping through each letter in the input string
             for (int i = 0; i < inputString.Length; i++)
             {
                 //checking for direction
-                if (direction == "up")
+                if (direction == "down")
                 {
                     //adding a letter to apropriate string in the list of strings according to counter value
                     this.ListOfStringsEnc[counter] += inputString[i];
@@ -107,7 +184,7 @@ namespace RailFenceCipherV2
                     if (counter == this.NumberOfRows - 1)
                     {
                         //if we reached the last row, then changing direction and starting decrementing the counter
-                        direction = "down";
+                        direction = "up";
                         counter--;
                     }
                     else
@@ -117,7 +194,7 @@ namespace RailFenceCipherV2
                     }
                 }
                 //checking for direction
-                else if (direction == "down")
+                else if (direction == "up")
                 {
                     //adding a letter to apropriate string in the list of strings according to counter value
                     this.ListOfStringsEnc[counter] += inputString[i];
@@ -125,7 +202,7 @@ namespace RailFenceCipherV2
                     if (counter == 0)
                     {
                         //if we reached the first row, then changing direction and starting incrementing the counter
-                        direction = "up";
+                        direction = "down";
                         counter++;
                     }
                     else
@@ -153,13 +230,13 @@ namespace RailFenceCipherV2
             //declaring a counter that indicates the number of row that we are at during the loop
             int counter = 0;
             //declaring a counter that indicates the direction that we are moving at during the main loop
-            string direction = "up";
+            string direction = "down";
             //this loop is responsible for getting correct lengths of each string to be decrypted
             //looping through each letter in the input string
             for (int i = 0; i < inputString.Length; i++)
             {
                 //checking for direction
-                if (direction == "up")
+                if (direction == "down")
                 {
                     //adding a letter to apropriate string in the list of strings according to counter value
                     this.ListOfStringsDec[counter] += inputString[i];
@@ -167,7 +244,7 @@ namespace RailFenceCipherV2
                     if (counter == this.NumberOfRows - 1)
                     {
                         //if we reached the last row, then changing direction and starting decrementing the counter
-                        direction = "down";
+                        direction = "up";
                         counter--;
                     }
                     else
@@ -177,7 +254,7 @@ namespace RailFenceCipherV2
                     }
                 }
                 //checking for direction
-                else if (direction == "down")
+                else if (direction == "up")
                 {
                     //adding a letter to apropriate string in the list of strings according to counter value
                     this.ListOfStringsDec[counter] += inputString[i];
@@ -185,7 +262,7 @@ namespace RailFenceCipherV2
                     if (counter == 0)
                     {
                         //if we reached the first row, then changing direction and starting incrementing the counter
-                        direction = "up";
+                        direction = "down";
                         counter++;
                     }
                     else
@@ -206,12 +283,12 @@ namespace RailFenceCipherV2
             string returnString = string.Empty;
             //reseting my counters for another loop
             counter = 0;
-            direction = "up";
+            direction = "down";
             //adding letters from my decryption list into return string until the length of return string is equal to the original input string
             while (returnString.Length != originalInputString.Length)
             {
                 //checking for direction
-                if (direction == "up")
+                if (direction == "down")
                 {
                     //adding a letter from apropriate string from the decryption list according to counter value
                     returnString += ListForDecrypt[counter][0].ToString();
@@ -221,7 +298,7 @@ namespace RailFenceCipherV2
                     if (counter == this.NumberOfRows - 1)
                     {
                         //if we reached the last row, then changing direction and starting decrementing the counter
-                        direction = "down";
+                        direction = "up";
                         counter--;
                     }
                     else
@@ -231,7 +308,7 @@ namespace RailFenceCipherV2
                     }
                 }
                 //checking for direction
-                else if (direction == "down")
+                else if (direction == "up")
                 {
                     //adding a letter to my return string from apropriate string from the decryption list according to counter value
                     returnString += ListForDecrypt[counter][0].ToString();
@@ -241,7 +318,7 @@ namespace RailFenceCipherV2
                     if (counter == 0)
                     {
                         //if we reached the first row, then changing direction and starting incrementing the counter
-                        direction = "up";
+                        direction = "down";
                         counter++;
                     }
                     else
